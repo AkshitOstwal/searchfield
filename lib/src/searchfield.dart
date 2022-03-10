@@ -346,87 +346,101 @@ class _SearchFieldState extends State<SearchField> {
           } else {
             height = snapshot.data!.length * widget.itemHeight;
           }
-          return AnimatedContainer(
-            duration: isUp ? Duration.zero : Duration(milliseconds: 300),
-            height: height,
-            alignment: Alignment.centerLeft,
-            decoration: widget.suggestionsDecoration ??
-                BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  boxShadow: [
-                    BoxShadow(
-                      color: onSurfaceColor.withOpacity(0.1),
-                      blurRadius: 8.0,
-                      spreadRadius: 2.0,
-                      offset: widget.hasOverlay
-                          ? Offset(
-                              2.0,
-                              5.0,
-                            )
-                          : Offset(1.0, 0.5),
-                    ),
-                  ],
-                ),
-            child: ListView.builder(
-              reverse: isUp,
-              padding: EdgeInsets.zero,
-              itemCount: snapshot.data!.length,
-              physics: snapshot.data!.length == 1
-                  ? NeverScrollableScrollPhysics()
-                  : ScrollPhysics(),
-              itemBuilder: (context, index) => InkWell(
-                onTap: () {
-                  searchController!.text = snapshot.data![index]!.searchKey;
-                  searchController!.selection = TextSelection.fromPosition(
-                    TextPosition(
-                      offset: searchController!.text.length,
-                    ),
-                  );
-
-                  // suggestion action to switch focus to next focus node
-                  if (widget.suggestionAction != null) {
-                    if (widget.suggestionAction == SuggestionAction.next) {
-                      _focus.nextFocus();
-                    } else if (widget.suggestionAction ==
-                        SuggestionAction.unfocus) {
-                      _focus.unfocus();
-                    }
-                  }
-
-                  // hide the suggestions
-                  suggestionStream.sink.add(null);
-                  if (widget.onTap != null) {
-                    widget.onTap!(snapshot.data![index]!);
-                  }
-                },
-                child: Container(
-                    height: widget.itemHeight,
-                    padding: EdgeInsets.symmetric(horizontal: 5) +
-                        EdgeInsets.only(left: 8),
-                    width: double.infinity,
-                    alignment: Alignment.centerLeft,
-                    decoration: widget.suggestionItemDecoration?.copyWith(
-                          border: Border(
-                            bottom: BorderSide(
-                              color: widget.marginColor ??
-                                  onSurfaceColor.withOpacity(0.1),
-                            ),
+          return ClipRRect(
+            // manually added
+            borderRadius: BorderRadius.circular(12),
+            clipBehavior: Clip.hardEdge,
+            child: AnimatedContainer(
+              duration: isUp ? Duration.zero : Duration(milliseconds: 300),
+              height: height,
+              alignment: Alignment.centerLeft,
+              decoration: widget.suggestionsDecoration ??
+                  BoxDecoration(
+                    color: Colors.white,
+                    // manually added
+                    border: Border.all(color: Colors.red[700]!, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: onSurfaceColor.withOpacity(0.1),
+                        blurRadius: 8.0,
+                        spreadRadius: 2.0,
+                        offset: widget.hasOverlay
+                            ? Offset(
+                                2.0,
+                                5.0,
+                              )
+                            : Offset(1.0, 0.5),
+                      ),
+                    ],
+                  ),
+              child: ClipRRect(
+                // manually added
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.hardEdge,
+                child: ListView.builder(
+                  reverse: isUp,
+                  padding: EdgeInsets.zero,
+                  itemCount: snapshot.data!.length,
+                  physics: snapshot.data!.length == 1
+                      ? NeverScrollableScrollPhysics()
+                      : ScrollPhysics(),
+                  itemBuilder: (context, index) => Card(
+                    margin: EdgeInsets.zero,
+                    elevation: 0,
+                    child: InkWell(
+                      onTap: () {
+                        searchController!.text =
+                            snapshot.data![index]!.searchKey;
+                        searchController!.selection =
+                            TextSelection.fromPosition(
+                          TextPosition(
+                            offset: searchController!.text.length,
                           ),
-                        ) ??
-                        BoxDecoration(
-                          border: index == snapshot.data!.length - 1
-                              ? null
-                              : Border(
-                                  bottom: BorderSide(
-                                    color: widget.marginColor ??
-                                        onSurfaceColor.withOpacity(0.1),
-                                  ),
-                                ),
-                        ),
-                    child: snapshot.data![index]!.child ??
-                        Text(
-                          snapshot.data![index]!.searchKey,
-                        )),
+                        );
+
+                        // suggestion action to switch focus to next focus node
+                        if (widget.suggestionAction != null) {
+                          if (widget.suggestionAction ==
+                              SuggestionAction.next) {
+                            _focus.nextFocus();
+                          } else if (widget.suggestionAction ==
+                              SuggestionAction.unfocus) {
+                            _focus.unfocus();
+                          }
+                        }
+
+                        // hide the suggestions
+                        suggestionStream.sink.add(null);
+                        if (widget.onTap != null) {
+                          widget.onTap!(snapshot.data![index]!);
+                        }
+                      },
+                      child: Container(
+                          height: widget.itemHeight,
+                          padding: EdgeInsets.symmetric(horizontal: 5) +
+                              EdgeInsets.only(left: 8),
+                          width: double.infinity,
+                          alignment: Alignment.center,
+                          decoration: widget.suggestionItemDecoration ??
+                              BoxDecoration(
+                                color: Colors.white,
+                                border: index == snapshot.data!.length - 1
+                                    ? null
+                                    : Border(
+                                        bottom: BorderSide(
+                                          color: widget.marginColor ??
+                                              onSurfaceColor.withOpacity(0.1),
+                                        ),
+                                      ),
+                              ),
+                          child: snapshot.data![index]!.child ??
+                              Text(
+                                snapshot.data![index]!.searchKey,
+                              )),
+                    ),
+                  ),
+                ),
               ),
             ),
           );
@@ -471,7 +485,7 @@ class _SearchFieldState extends State<SearchField> {
                 child: CompositedTransformFollower(
                     offset: getYOffset(offset, count),
                     link: _layerLink,
-                    child: Material(child: _suggestionsBuilder())),
+                    child: _suggestionsBuilder()),
               );
             }));
   }
